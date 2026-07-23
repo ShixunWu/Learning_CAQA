@@ -1,0 +1,16 @@
+# Python virtual environment
+course/venv/
+__pycache__/
+*.pyc
+
+# Book PDFs (copyrighted, do not upload)
+Computer Architecture A Quantitative Approach (6th Edition).pdf
+Computer Architecture A Quantitative Approach (6th Edition) Solutions Manual*.pdf
+
+# macOS metadata
+__MACOSX/
+.DS_Store
+
+# Generated files from gem5/CACTI simulations
+m5out/
+*.pyc
