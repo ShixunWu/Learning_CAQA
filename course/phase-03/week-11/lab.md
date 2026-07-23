@@ -45,7 +45,7 @@ addi x3, x2, 5       # RAW: 可用前推消除
 
 ### Step 4：计算 CPI 影响
 
-假设理想 CPI=1，每条 ALU→ALU 依赖在无前推时需 2 个 stall，load-use 永远需 1 个 stall。
+假设理想 CPI=1，每条 ALU→ALU 依赖在无前推时需 2 个 stall，load-use 无前推时需 2 个 stall、有前推时仍需 1 个 stall（因为数据在 MEM 阶段才可用，无法在 EX 阶段前推到下一条指令）。
 
 对于以下指令混合：
 - 30% 指令有 RAW 依赖（其中 80% 是 ALU→ALU，20% 是 load-use）

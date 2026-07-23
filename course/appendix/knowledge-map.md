@@ -174,16 +174,16 @@
 
 ## 核心公式速查
 
-| 类别 | 公式 | 意义 |
-|------|------|------|
-| 性能 | CPU Time = IC × CPI × T_cycle | Iron Law |
-| 加速比 | Speedup = 1 / ((1-f) + f/S) | Amdahl 定律 |
-| 动态功耗 | P_dyn = α C V² f | 频率/电压对功耗的影响 |
-| 缓存 | AMAT = Hit Time + Miss Rate × Miss Penalty | 平均访存时间 |
-| 一致性 | M → S (BusRd), S → M (BusRdX) | MSI 协议 |
-| 算术强度 | AI = FLOPs / Bytes | Roofline 模型 |
-| PUE | PUE = P_total / P_IT | 数据中心能效 |
-| 可用性 | A = MTTF / (MTTF + MTTR) | 系统可靠性 |
+| 类别     | 公式                                        | 意义                  |
+| -------- | ------------------------------------------- | --------------------- |
+| 性能     | CPU Time = IC × CPI × T_cycle             | Iron Law              |
+| 加速比   | Speedup = 1 / ((1-f) + f/S)                 | Amdahl 定律           |
+| 动态功耗 | P_dyn = α C V² f                          | 频率/电压对功耗的影响 |
+| 缓存     | AMAT = Hit Time + Miss Rate × Miss Penalty | 平均访存时间          |
+| 一致性   | M → S (BusRd), S → M (BusRdX)             | MSI 协议              |
+| 算术强度 | AI = FLOPs / Bytes                          | Roofline 模型         |
+| PUE      | PUE = P_total / P_IT                        | 数据中心能效          |
+| 可用性   | A = MTTF / (MTTF + MTTR)                    | 系统可靠性            |
 
 ## 使用方法
 

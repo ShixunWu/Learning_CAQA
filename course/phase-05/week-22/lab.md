@@ -78,9 +78,17 @@ __global__ void sgemm_warp_tiled(const float *A, const float *B, float *C, int N
     int col = blockIdx.x * TILE + threadIdx.x;
     float sum = 0.0f;
 
-    for (int t = 0; t < N / TILE; t++) {
-        As[threadIdx.y][threadIdx.x] = A[row * N + t * TILE + threadIdx.x];
-        Bs[threadIdx.y][threadIdx.x] = B[(t * TILE + threadIdx.y) * N + col];
+    for (int t = 0; t < (N + TILE - 1) / TILE; t++) {
+        // 合作加载 tile，带边界检查
+        if (row < N && (t * TILE + threadIdx.x) < N)
+            As[threadIdx.y][threadIdx.x] = A[row * N + t * TILE + threadIdx.x];
+        else
+            As[threadIdx.y][threadIdx.x] = 0.0f;
+
+        if (col < N && (t * TILE + threadIdx.y) < N)
+            Bs[threadIdx.y][threadIdx.x] = B[(t * TILE + threadIdx.y) * N + col];
+        else
+            Bs[threadIdx.y][threadIdx.x] = 0.0f;
         __syncthreads();
 
         for (int k = 0; k < TILE; k++)

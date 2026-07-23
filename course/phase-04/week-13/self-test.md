@@ -66,13 +66,21 @@ C3 结束时 Register Result Status：
 - F10 → 被 Add 写入（注意：Add FU 只有一个，SUB 和 ADD 不能同时占用，ADD 需等待。实际上 ADD 因结构冒险可能在 Issue 被阻塞）
 
 ### A4
-- SUB 的 Issue **不会被阻塞**：Issue 只检查结构冒险和 WAW, F4 没有被作为目标寄存器等待
-- SUB 的 Write **会被阻塞**：ADD 还需要读 F4 的旧值（WAR），直到 ADD 完成 Read Ops 后，SUB 才能 Write
-- 时间线：ADD Issue@C1, ReadOps@C2, SUB Issue@C2, ReadOps@C3, ADD Exec@C3-4, SUB 等 ADD ReadOps 完成后才能 Write@C5
+- SUB 的 Issue：若仅 1 个 Add FU，ADD 占用该 FU 直到 Write 完成（记分板中 FU 在 **Write 之后释放**，而非 Exec 之后），故 SUB 在 Issue 阶段因结构冒险被阻塞，须等 ADD Write 后才可 Issue。若有多个 Add FU，则 Issue 不被阻塞（F4 不是待写入目标，无 WAW）。
+- SUB 的 Write：即使 SUB 已 Issue，Write 阶段仍需检查 WAR——ADD 的源操作数 F4 被 SUB 覆盖前，ADD 必须已完成 Read Ops。故 SUB 的 Write 被阻塞至 ADD 读取 F4 之后。
+- 时间线（假设 1 个 Add FU，记分板单发射）：
+  - C1: ADD Issue, C2: ADD ReadOps, C3-4: ADD Exec, C5: ADD Write（释放 Add FU）
+  - C6: SUB Issue, C7: SUB ReadOps, C8-9: SUB Exec, C10: SUB Write
+  - WAR 检查在 C10 通过（ADD 已在 C2 读完 F4），无需额外阻塞。
+  - 若假设多 Add FU 可同时 Issue：ADD Issue@C1, ReadOps@C2; SUB Issue@C2, ReadOps@C3; ADD Exec@C3-4, SUB 的 Write 必须等 ADD 完成 ReadOps → Write@C5。
 
 ### A5
+以下假设有 ≥2 个 Add FU（否则 SUB 会被 ADD 占用的 Add FU 阻塞在 Issue）。
+记分板中 **FU 在 Write 完成后释放**（非 Exec 完成后），故 ADD 的 Add FU 在 C16 才释放。
+
 - MULT: Issue@1, ReadOps@2, Exec@3-12, Write@13
 - ADD: Issue@2, ReadOps@13（等 F0 就绪），Exec@14-15, Write@16
 - SUB: Issue@3, ReadOps@4, Exec@5-6, Write@7
 - 总周期：16，CPI = 16/3 ≈ 5.33
+- 若仅 1 个 Add FU：SUB 需等 ADD 在 C16 释放 FU → Issue@17, ReadOps@18, Exec@19-20, Write@21, 总周期 21, CPI=7。这体现了记分板的结构冒险代价。
 - 顺序流水线（无前推）：MULT 阻塞 ADD 需额外等待，总周期更长

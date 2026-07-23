@@ -52,6 +52,17 @@
 
 现代处理器的核心约束不是晶体管数量，而是功耗墙。
 
+### 5. 可靠性与可用性（Ch1 §1.7）
+
+大规模系统中，可靠性是重要的设计约束：
+
+- **MTTF（Mean Time To Failure）**：平均无故障时间，衡量硬件可靠性
+- **MTTR（Mean Time To Repair）**：平均修复时间，取决于运维能力
+- **MTBF（Mean Time Between Failures）**：MTBF = MTTF + MTTR，平均故障间隔
+- **可用性（Availability）**：\[ \text{Availability} = \frac{\text{MTTF}}{\text{MTTF} + \text{MTTR}} \]
+
+例如：服务器 MTTF=25 年，MTTR=1 小时，可用性 = 219000/(219000+1) ≈ 99.9995%。但对 50,000 台服务器的 WSC，预期每天约 5-6 台故障——故障是常态而非例外。这为后续 Phase 7 的 WSC 故障处理策略奠定基础。
+
 ---
 
 ## 动手实验

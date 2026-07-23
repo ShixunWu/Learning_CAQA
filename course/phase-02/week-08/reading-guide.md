@@ -36,6 +36,16 @@
 
 代价：内部碎片（分配的最小单元就是 2MB）、换页开销大。
 
+### 虚拟机与内存虚拟化（Ch2 §2.4）
+
+现代云计算的基石是虚拟机技术，它对内存系统提出新的挑战：
+
+- **Hypervisor 类型**：Type 1（裸机型，如 VMware ESXi、KVM）直接运行在硬件上，性能最优；Type 2（宿主型，如 VirtualBox）运行在宿主 OS 之上，开销较大
+- **嵌套页表（Nested Page Tables / EPT）**：传统影子页表（Shadow Page Table）由 Hypervisor 维护 Guest VA→Host PA 的映射，每次 Guest 页表更新都需 VM Exit，开销极大。Intel EPT / AMD NPT 引入硬件两级翻译——Guest VA→Guest PA→Host PA，消除大部分 VM Exit，大幅提升虚拟化环境下的内存性能
+- **TLB 影响**：虚拟化下每次 Guest VA 访问需完成两级页表遍历，TLB miss 代价加倍，促使更大 TLB 和 ASID（Address Space ID）设计以避免 TLB flush
+
+> 理解虚拟化对内存系统的影响，是分析云服务性能开销的关键。
+
 ## 动手实验
 
 详见 [lab.md](lab.md)

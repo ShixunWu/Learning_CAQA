@@ -71,7 +71,7 @@ class MSIBus:
         owner = self._find_owner(addr)
 
         if owner and owner.id != core_id:
-            # M → S downgrade
+            # BusRd snoop: other cache has M → downgrade to S (write-back to memory implicit)
             oline = owner.cache[self._cache_index(addr)]
             oline.state = State.S
             self.event_log.append(f"  [BUS]  Core{owner.id} M→S downgrade for addr{addr}")

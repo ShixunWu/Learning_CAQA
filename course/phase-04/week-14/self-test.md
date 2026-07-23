@@ -65,9 +65,13 @@ Add1 监听到 CDB 上 Mul2 的广播，发现自己的 Qj=="Mul2" → 捕获数
 第 4 条 ADD 因无空闲 RS 被阻塞在 Issue 阶段，产生结构冒险。这反映为 CPI 增大——后续指令即使数据就绪也无法发射。
 
 ### A5
-- C1: MULT→Mul0; ADD1→Add0; ADD2 等待 Add RS（Add0 和 Add1 分别为第 1,2 条 ADD 占用）
-- C2: ADD2 发射到 Add1（假设第一个 ADD 释放了一个 RS? 不，ADD 只在执行完才释放。2 条 ADD 各占 1 个 RS，第 3 条 ADD 阻塞）
-  - 实际上：MULT→Mul0@C1, ADD1→Add0@C1, ADD2 等待...
-  - ADD1 Execute@C2-3, Write@C4, 释放 Add0
-  - ADD2 Issue@C4, 等待 F0(Mul0) 和 F2(刚从 Add0 写回), Execute@C11-12, Write@C13
-  - 总约 13 周期
+**Tomasulo 无推测（无 ROB）**，2 个 Add RS，1 个 Mul RS：
+
+- C1: MULT→Mul0（读 F2 旧值、F4 → 立即 ReadOps）。ADD1→Add0（读 F6、F8 → 立即 ReadOps）。reg_status[F2]=Add0, reg_status[F0]=Mul0。ADD2→Add1（仍有空闲 RS），但 Qj=Add0（等 F2），Qk=Mul0（等 F0）。
+- C2-C11: MULT Exec@C2-11, Write@C12（Mul0 释放）。
+- C2-C3: ADD1 Exec@C2-3, Write@C4（Add0 释放，广播 F2 新值）→ ADD2 从 CDB 捕获 F2，清除 Qj。
+- C12: MULT Write（广播 F0）→ ADD2 从 CDB 捕获 F0，清除 Qk，两操作数就绪。
+- C12-C13: ADD2 Exec, Write@C14。
+- **总周期：14，CPI = 14/3 ≈ 4.67。**
+
+> 注意：Tomasulo 无推测版本中 RS 在指令 Write（CDB 广播）后释放，指令也按数据流顺序完成，不涉及 ROB 的按序提交。若题目未提及 speculation/ROB，不应假设有 ROB。

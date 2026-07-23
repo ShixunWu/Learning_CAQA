@@ -46,8 +46,9 @@ AVX2 有 16 个 YMM 寄存器。矩阵乘法内层循环需要多少寄存器（
 (c) 128/16 = **8 个 int16_t**
 
 ### A2
-0x7fffe018 mod 16 = 0x18 mod 16 = 24 mod 16 = 8 → 不对齐（SSE 需 mod 16 = 0）。
-0x7fffe018 mod 32 = 24 mod 32 = 24 → 不对齐（AVX 需 mod 32 = 0）。
+0x7fffe018 mod 16 = 0x18 mod 16 = 24 mod 16 = 8 → 不对齐（SSE 对齐加载 `_mm_load_ps` 要求地址 16 字节对齐，即 mod 16 = 0）。
+0x7fffe018 mod 32 = 24 mod 32 = 24 → 不对齐（AVX 对齐加载 `_mm256_load_ps` 要求地址 32 字节对齐，即 mod 32 = 0）。
+> 对齐要求：SSE=16 字节边界，AVX=32 字节边界。若不对齐，需使用 `_mm_loadu_ps` / `_mm256_loadu_ps`，带来 2-3× 延迟惩罚，且跨 cache line 时额外增加总线事务。
 
 ### A3
 load 次数 = ceil(10000/4) × 2 = 2500 × 2 = 5000 次
